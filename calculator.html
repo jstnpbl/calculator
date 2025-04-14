@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced Calculator</title>
+    <style>
+        :root {
+            --bg-color: #f8f9fa;
+            --calculator-bg: #ffffff;
+            --text-color: #212529;
+            --btn-color: #e9ecef;
+            --btn-text: #212529;
+            --operator-color: #4361ee;
+            --operator-text: #ffffff;
+            --equal-color: #3a0ca3;
+            --equal-text: #ffffff;
+            --clear-color: #e63946;
+            --clear-text: #ffffff;
+            --special-color: #4cc9f0;
+            --special-text: #ffffff;
+            --memory-color: #7209b7;
+            --memory-text: #ffffff;
+            --history-bg: #f1f3f5;
+            --history-text: #495057;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --hover-shadow-color: rgba(0, 0, 0, 0.15);
+            --border-color: #dee2e6;
+        }
+    
+        .dark-mode {
+            --bg-color: #121212;
+            --calculator-bg: #1e1e1e;
+            --text-color: #f8f9fa;
+            --btn-color: #2d2d2d;
+            --btn-text: #f8f9fa;
+            --operator-color: #5a70ed;
+            --operator-text: #ffffff;
+            --equal-color: #5e17eb;
+            --equal-text: #ffffff;
+            --clear-color: #f05454;
+            --clear-text: #ffffff;
+            --special-color: #48cae4;
+            --special-text: #ffffff;
+            --memory-color: #9d4edd;
+            --memory-text: #ffffff;
+            --history-bg: #2d2d2d;
+            --history-text: #dee2e6;
+            --shadow-color: rgba(255, 255, 255, 0.05);
+            --hover-shadow-color: rgba(255, 255, 255, 0.1);
+            --border-color: #495057;
+        }
+    
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: var(--bg-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+            padding: 20px;
+            box-sizing: border-box;
+            margin: 0;
+        }
+    
+        .app-container {
+            display: flex;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+    
+        .calculator {
+            background: var(--calculator-bg);
+            padding: 24px;
+            border-radius: 20px;
+            color: var(--text-color);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+    
+        .history-panel {
+            width: 280px;
+            background: var(--history-bg);
+            padding: 20px;
+            overflow-y: auto;
+            max-height: 600px;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+    
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+    
+        .history-header h2 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: var(--text-color);
+        }
+    
+        .history-clear-btn {
+            background: none;
+            border: none;
+            color: var(--clear-color);
+            cursor: pointer;
+            font-size: 0.9rem;
+            padding: 5px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+    
+        .history-clear-btn:hover {
+            background: rgba(230, 57, 70, 0.1);
+        }
+    
+        .history-item {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+            font-family: monospace;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: var(--history-text);
+        }
+    
+        .history-item:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+    
+        .dark-mode .history-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+    
+        .history-expression {
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+    
+        .history-result {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+    
+        .empty-history {
+            color: var(--text-color);
+            opacity: 0.6;
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+        }
+    
+        .calculator-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+    
+        .calculator-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 0;
+        }
+    
+        .calculator-actions {
+            display: flex;
+            gap: 10px;
+        }
+    
+        .theme-toggle-btn, .mode-toggle-btn, .history-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            opacity: 0.8;
+            padding: 5px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+    
+        .theme-toggle-btn:hover, .mode-toggle-btn:hover, .history-toggle-btn:hover {
+            opacity: 1;
+            background: var(--btn-color);
+        }
+    
+        .display-container {
+            position: relative;
+            margin-bottom: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-color);
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+    
+        .equation-preview {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 1rem;
+            color: var(--text-color);
+            opacity: 0.6;
+            font-family: monospace;
+            max-width: 90%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    
+        #display {
+            width: 100%;
+            font-size: 2.4rem;
+            text-align: right;
+            padding: 30px 15px 15px;
+            color: var(--text-color);
+            background: transparent;
+            border: none;
+            box-sizing: border-box;
+            outline: none;
+            font-family: monospace;
+            transition: color 0.3s;
+        }
+    
+        .memory-display {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-bottom: 15px;
+            height: 20px;
+        }
+    
+        .memory-indicator {
+            display: none;
+            padding: 2px 8px;
+            font-size: 0.8rem;
+            background: var(--memory-color);
+            color: var(--memory-text);
+            border-radius: 4px;
+            opacity: 0.8;
+        }
+    
+        .memory-indicator.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+    
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 0.8; }
+        }
+    
+        .calculator-modes {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+            scrollbar-width: thin;
+        }
+    
+        .calculator-modes::-webkit-scrollbar {
+            height: 4px;
+        }
+    
+        .calculator-modes::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+    
+        .mode-btn {
+            background: var(--btn-color);
+            color: var(--btn-text);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+    
+        .mode-btn.active {
+            background: var(--operator-color);
+            color: var(--operator-text);
+        }
+    
+        .buttons-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            flex-grow: 1;
+        }
+    
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            flex-grow: 1;
+        }
+    
+        .scientific-buttons {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-gap: 10px;
+            margin-bottom: 15px;
+        }
+    
+        .memory-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-gap: 10px;
+            margin-bottom: 15px;
+        }
+    
+        button {
+            width: 100%;
+            height: 60px;
+            font-size: 1.4rem;
+            border: none;
+            border-radius: 8px;
+            background: var(--btn-color);
+            color: var(--btn-text);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 2px 5px var(--shadow-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+    
+        button:hover {
+            box-shadow: 0 4px 8px var(--hover-shadow-color);
+            transform: translateY(-2px);
+        }
+    
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 3px var(--shadow-color);
+        }
+    
+        .operator {
+            background: var(--operator-color);
+            color: var(--operator-text);
+        }
+    
+        .equal {
+            background: var(--equal-color);
+            color: var(--equal-text);
+        }
+    
+        .clear {
+            background: var(--clear-color);
+            color: var(--clear-text);
+        }
+    
+        .special {
+            background: var(--special-color);
+            color: var(--special-text);
+        }
+    
+        .memory {
+            background: var(--memory-color);
+            color: var(--memory-text);
+            font-size: 1.1rem;
+        }
+    
+        .scientific {
+            font-size: 1.1rem;
+        }
+    
+        .active-operator {
+            animation: pulse 1s infinite alternate;
+            transform: scale(1.05);
+        }
+    
+        @keyframes pulse {
+            from { opacity: 0.8; }
+            to { opacity: 1; }
+        }
+    
+        .keyboard-shortcut {
+            position: absolute;
+            top: 3px;
+            left: 5px;
+            font-size: 0.7rem;
+            opacity: 0.6;
+            color: var(--text-color);
+        }
+    
+        /* Small screens */
+        @media (max-width: 768px) {
+            .app-container {
+                flex-direction: column;
+                max-width: 400px;
+            }
+    
+            .history-panel {
+                width: auto;
+                max-height: 200px;
+                order: 2;
+                border-top: 1px solid var(--border-color);
+                border-radius: 0 0 20px 20px;
+            }
+    
+            .calculator {
+                order: 1;
+                border-radius: 20px 20px 0 0;
+            }
+    
+            .scientific-buttons, .memory-buttons {
+                grid-template-columns: repeat(4, 1fr);
+            }
+    
+            .keyboard-shortcut {
+                display: none;
+            }
+        }
+    
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 15px;
+            }
+    
+            button {
+                height: 50px;
+                font-size: 1.2rem;
+            }
+    
+            #display {
+                font-size: 2rem;
+                padding: 25px 10px 10px;
+            }
+    
+            .scientific-buttons, .memory-buttons {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+    
+            .buttons {
+                grid-gap: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="calculator">
+            <div class="calculator-header">
+                <h2 class="calculator-title">Advanced Calculator</h2>
+                <div class="calculator-actions">
+                    <button id="historyToggle" class="history-toggle-btn" title="Toggle History">📋</button>
+                    <button id="modeToggle" class="mode-toggle-btn" title="Toggle Scientific Mode">🧮</button>
+                    <button id="themeToggle" class="theme-toggle-btn" title="Toggle Theme">☀️</button>
+                </div>
+            </div>
+            
+            <div class="memory-display">
+                <div id="memoryIndicator" class="memory-indicator">M</div>
+            </div>
+            
+            <div class="display-container">
+                <div class="equation-preview" id="equationPreview"></div>
+                <input type="text" id="display" value="0" readonly />
+            </div>
+            
+            <div id="calculatorModes" class="calculator-modes">
+                <button class="mode-btn active" data-mode="standard">Standard</button>
+                <button class="mode-btn" data-mode="scientific">Scientific</button>
+                <button class="mode-btn" data-mode="programmer">Programmer</button>
+                <button class="mode-btn" data-mode="date">Date Calculation</button>
+                <button class="mode-btn" data-mode="converter">Unit Converter</button>
+            </div>
+            
+            <div id="memoryButtons" class="memory-buttons" style="display: none;">
+                <button class="memory" onclick="memoryOperation('MC')" title="Memory Clear">
+                    <span class="keyboard-shortcut">Ctrl+L</span>MC
+                </button>
+                <button class="memory" onclick="memoryOperation('MR')" title="Memory Recall">
+                    <span class="keyboard-shortcut">Ctrl+R</span>MR
+                </button>
+                <button class="memory" onclick="memoryOperation('M+')" title="Memory Add">
+                    <span class="keyboard-shortcut">Ctrl+P</span>M+
+                </button>
+                <button class="memory" onclick="memoryOperation('M-')" title="Memory Subtract">
+                    <span class="keyboard-shortcut">Ctrl+Q</span>M-
+                </button>
+                <button class="memory" onclick="memoryOperation('MS')" title="Memory Store">
+                    <span class="keyboard-shortcut">Ctrl+M</span>MS
+                </button>
+            </div>
+            
+            <div id="scientificButtons" class="scientific-buttons" style="display: none;">
+                <button class="scientific" onclick="scientificOperation('sin')" title="Sine">
+                    <span class="keyboard-shortcut">s</span>sin
+                </button>
+                <button class="scientific" onclick="scientificOperation('cos')" title="Cosine">
+                    <span class="keyboard-shortcut">c</span>cos
+                </button>
+                <button class="scientific" onclick="scientificOperation('tan')" title="Tangent">
+                    <span class="keyboard-shortcut">t</span>tan
+                </button>
+                <button class="scientific" onclick="scientificOperation('pow')" title="Power">
+                    <span class="keyboard-shortcut">^</span>x<sup>y</sup>
+                </button>
+                <button class="scientific" onclick="scientificOperation('sqrt')" title="Square Root">
+                    <span class="keyboard-shortcut">r</span>√
+                </button>
+                <button class="scientific" onclick="scientificOperation('log')" title="Logarithm">
+                    <span class="keyboard-shortcut">l</span>log
+                </button>
+                <button class="scientific" onclick="scientificOperation('ln')" title="Natural Logarithm">
+                    <span class="keyboard-shortcut">n</span>ln
+                </button>
+                <button class="scientific" onclick="scientificOperation('exp')" title="e^x">
+                    <span class="keyboard-shortcut">e</span>e<sup>x</sup>
+                </button>
+                <button class="scientific" onclick="scientificOperation('pi')" title="Pi">
+                    <span class="keyboard-shortcut">p</span>π
+                </button>
+                <button class="scientific" onclick="scientificOperation('fact')" title="Factorial">
+                    <span class="keyboard-shortcut">!</span>n!
+                </button>
+                <button class="scientific" onclick="scientificOperation('inv')" title="Inverse">
+                    <span class="keyboard-shortcut">i</span>1/x
+                </button>
+                <button class="scientific" onclick="scientificOperation('e')" title="Euler's Number">
+                    <span class="keyboard-shortcut">E</span>e
+                </button>
+                <button class="scientific" onclick="scientificOperation('abs')" title="Absolute Value">
+                    <span class="keyboard-shortcut">a</span>|x|
+                </button>
+                <button class="scientific" onclick="scientificOperation('rad')" title="Convert to Radians">
+                    <span class="keyboard-shortcut">R</span>RAD
+                </button>
+                <button class="scientific" onclick="scientificOperation('deg')" title="Convert to Degrees">
+                    <span class="keyboard-shortcut">D</span>DEG
+                </button>
+            </div>
+            
+            <div class="buttons">
+                <button class="clear" onclick="clearDisplay()" title="Clear">
+                    <span class="keyboard-shortcut">Esc</span>C
+                </button>
+                <button class="special" onclick="backspace()" title="Backspace">
+                    <span class="keyboard-shortcut">←</span>⌫
+                </button>
+                <button class="special" onclick="toggleScientificPanel()" title="Scientific Functions">
+                    <span class="keyboard-shortcut">F</span>f(x)
+                </button>
+                <button class="special" onclick="toggleMemoryPanel()" title="Memory Functions">
+                    <span class="keyboard-shortcut">M</span>M
+                </button>
+                
+                <button onclick="append('7')" title="Seven">
+                    <span class="keyboard-shortcut">7</span>7
+                </button>
+                <button onclick="append('8')" title="Eight">
+                    <span class="keyboard-shortcut">8</span>8
+                </button>
+                <button onclick="append('9')" title="Nine">
+                    <span class="keyboard-shortcut">9</span>9
+                </button>
+                <button class="operator" id="op-divide" onclick="setOperation('/')" title="Divide">
+                    <span class="keyboard-shortcut">/</span>÷
+                </button>
+                
+                <button onclick="append('4')" title="Four">
+                    <span class="keyboard-shortcut">4</span>4
+                </button>
+                <button onclick="append('5')" title="Five">
+                    <span class="keyboard-shortcut">5</span>5
+                </button>
+                <button onclick="append('6')" title="Six">
+                    <span class="keyboard-shortcut">6</span>6
+                </button>
+                <button class="operator" id="op-multiply" onclick="setOperation('*')" title="Multiply">
+                    <span class="keyboard-shortcut">*</span>×
+                </button>
+                
+                <button onclick="append('1')" title="One">
+                    <span class="keyboard-shortcut">1</span>1
+                </button>
+                <button onclick="append('2')" title="Two">
+                    <span class="keyboard-shortcut">2</span>2
+                </button>
+                <button onclick="append('3')" title="Three">
+                    <span class="keyboard-shortcut">3</span>3
+                </button>
+                <button class="operator" id="op-subtract" onclick="setOperation('-')" title="Subtract">
+                    <span class="keyboard-shortcut">-</span>−
+                </button>
+                
+                <button onclick="append('0')" title="Zero">
+                    <span class="keyboard-shortcut">0</span>0
+                </button>
+                <button onclick="append('.')" title="Decimal Point">
+                    <span class="keyboard-shortcut">.</span>.
+                </button>
+                <button class="equal" onclick="calculate()" title="Calculate">
+                    <span class="keyboard-shortcut">Enter</span>=
+                </button>
+                <button class="operator" id="op-add" onclick="setOperation('+')" title="Add">
+                    <span class="keyboard-shortcut">+</span>+
+                </button>
+            </div>
+        </div>
+        
+        <div class="history-panel" id="historyPanel">
+            <div class="history-header">
+                <h2>History</h2>
+                <button class="history-clear-btn" onclick="clearHistory()">Clear</button>
+            </div>
+            <div id="historyList">
+                <div class="empty-history">No calculations yet</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const display = document.getElementById('display');
+        const equationPreview = document.getElementById('equationPreview');
+        const themeToggleBtn = document.getElementById('themeToggle');
+        const modeToggleBtn = document.getElementById('modeToggle');
+        const historyToggleBtn = document.getElementById('historyToggle');
+        const historyPanel = document.getElementById('historyPanel');
+        const historyList = document.getElementById('historyList');
+        const scientificButtons = document.getElementById('scientificButtons');
+        const memoryButtons = document.getElementById('memoryButtons');
+        const memoryIndicator = document.getElementById('memoryIndicator');
+        const calculatorModes = document.getElementById('calculatorModes');
+        const modeBtns = document.querySelectorAll('.mode-btn');
+        
+        const operatorButtons = {
+            '+': document.getElementById('op-add'),
+            '-': document.getElementById('op-subtract'),
+            '*': document.getElementById('op-multiply'),
+            '/': document.getElementById('op-divide')
+        };
+
+        // Global variables
+        let currentInput = '0';
+        let operator = null;
+        let previousValue = null;
+        let calculationComplete = false;
+        let memoryValue = null;
+        let calculationHistory = [];
+        let scientificPanelVisible = false;
+        let memoryPanelVisible = false;
+        let angleMode = 'deg'; // 'deg' or 'rad'
+        let currentMode = 'standard';
+        
+        // Event Listeners
+        window.addEventListener('DOMContentLoaded', () => {
+            loadState();
+            setUpKeyboardShortcuts();
+        });
+
+        function setUpKeyboardShortcuts() {
+            document.addEventListener('keydown', function(e) {
+                // Prevent default actions for calculator keys
+                if (['+', '-', '*', '/', '=', 'Enter', 'Escape', 'Backspace'].includes(e.key)) {
+                    e.preventDefault();
+                }
+                
+                // Number keys
+                if (e.key >= '0' && e.key <= '9') {
+                    append(e.key);
+                }
+                
+                // Operation keys
+                switch (e.key) {
+                    case '+': setOperation('+'); break;
+                    case '-': setOperation('-'); break;
+                    case '*': setOperation('*'); break;
+                    case '/': setOperation('/'); break;
+                    case '=': 
+                    case 'Enter': calculate(); break;
+                    case '.': append('.'); break;
+                    case 'Escape': clearDisplay(); break;
+                    case 'Backspace': backspace(); break;
+                    // Scientific operations
+                    case 's': scientificOperation('sin'); break;
+                    case 'c': scientificOperation('cos'); break;
+                    case 't': scientificOperation('tan'); break;
+                    case '^': scientificOperation('pow'); break;
+                    case 'r': scientificOperation('sqrt'); break;
+                    case 'l': scientificOperation('log'); break;
+                    case 'n': scientificOperation('ln'); break;
+                    case 'e': scientificOperation('exp'); break;
+                    case 'E': scientificOperation('e'); break;
+                    case 'p': scientificOperation('pi'); break;
+                    case '!': scientificOperation('fact'); break;
+                    case 'i': scientificOperation('inv'); break;
+                    case 'a': scientificOperation('abs'); break;
+                    case 'R': scientificOperation('rad'); break;
+                    case 'D': scientificOperation('deg'); break;
+                }
+                
+                // Memory operations
+                if (e.ctrlKey) {
+                    switch (e.key) {
+                        case 'm': case 'M': 
+                            e.preventDefault();
+                            memoryOperation('MS'); 
+                            break;
+                        case 'r': case 'R': 
+                            e.preventDefault();
+                            memoryOperation('MR'); 
+                            break;
+                        case 'p': case 'P': 
+                            e.preventDefault();
+                            memoryOperation('M+'); 
+                            break;
+                        case 'q': case 'Q': 
+                            e.preventDefault();
+                            memoryOperation('M-'); 
+                            break;
+                        case 'l': case 'L': 
+                            e.preventDefault();
+                            memoryOperation('MC'); 
+                            break;
+                    }
+                }
+                
+                // Toggle panels
+                if (e.key === 'F' || e.key === 'f') {
+                    toggleScientificPanel();
+                }
+                if (e.key === 'M' || e.key === 'm') {
+                    toggleMemoryPanel();
+                }
+            });
+        }
+
+        // Event listeners for action buttons
+        themeToggleBtn.addEventListener('click', toggleTheme);
+        modeToggleBtn.addEventListener('click', toggleScientificPanel);
+        historyToggleBtn.addEventListener('click', toggleHistoryPanel);
+        
+        // Event listeners for mode selection
+        modeBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                modeBtns.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMode = this.getAttribute('data-mode');
+                
+                // For now we just show a message for unimplemented modes
+                if (currentMode !== 'standard' && currentMode !== 'scientific') {
+                    currentInput = `${currentMode.charAt(0).toUpperCase() + currentMode.slice(1)} mode coming soon!`;
+                    updateDisplay();
+                    setTimeout(() => {
+                        currentInput = '0';
+                        updateDisplay();
+                    }, 2000);
+                    
+                    // Reset to standard mode
+                    modeBtns[0].click();
+                } else if (currentMode === 'scientific') {
+                    if (!scientificPanelVisible) toggleScientificPanel();
+                } else {
+                    // Standard mode
+                    if (scientificPanelVisible) toggleScientificPanel();
+                    if (memoryPanelVisible) toggleMemoryPanel();
+                }
+                
+                saveState();
+            });
+        });
+
+        function updateDisplay() {
+            display.value = currentInput;
+            updateEquationPreview();
+        }
+
+        function updateEquationPreview() {
+            if (operator && previousValue) {
+                equationPreview.textContent = `${previousValue} ${getOperatorSymbol(operator)} ${currentInput !== '0' || calculationComplete ? currentInput : ''}`;
+            } else if (calculationComplete) {
+                equationPreview.textContent = `= ${currentInput}`;
+            } else {
+                equationPreview.textContent = '';
+            }
+        }
+
+        function getOperatorSymbol(op) {
+            switch (op) {
+                case '+': return '+';
+                case '-': return '−';
+                case '*': return '×';
+                case '/': return '÷';
+                default: return op;
+            }
+        }
+
+        function highlightOperator(op) {
+            // Reset all operator highlighting
+            Object.values(operatorButtons).forEach(btn => {
+                if (btn) btn.classList.remove('active-operator');
+            });
+            
+            // Highlight the current operator
+            if (op && operatorButtons[op]) {
+                operatorButtons[op].classList.add('active-operator');
+            }
+        }
+
+        function append(value) {
+            if (calculationComplete && !operator) {
+                // If we just completed a calculation and are starting fresh
+                clearDisplay();
+                calculationComplete = false;
+            }
+            
+            if (currentInput === '0' && value !== '.') {
+                currentInput = value;
+            } else if (currentInput === 'Error') {
+                currentInput = value;
+            } else if (currentInput.includes('mode coming soon!')) {
+                currentInput = value;
+            } else {
+                // Prevent multiple decimal points
+                if (value === '.' && currentInput.includes('.')) return;
+                currentInput += value;
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            operator = null;
+            previousValue = null;
+            calculationComplete = false;
+            updateDisplay();
+            highlightOperator(null);
+        }
+        function backspace() {
+            if (currentInput !== '0' && currentInput !== 'Error') {
+                if (currentInput.length === 1) {
+                    currentInput = '0';
+                } else {
+                    currentInput = currentInput.slice(0, -1);
+                }
+                updateDisplay();
+            }
+        }
+
+        function setOperation(op) {
+            if (currentInput === 'Error') return;
+            
+            // Calculate previous operation first if one exists
+            if (operator && previousValue && !calculationComplete) {
+                calculate();
+            }
+            
+            previousValue = currentInput;
+            operator = op;
+            calculationComplete = false;
+            currentInput = '0';
+            
+            highlightOperator(op);
+            updateDisplay();
+        }
+
+        function calculate() {
+            if (operator === null || previousValue === null || currentInput === 'Error') return;
+            
+            let result;
+            const a = parseFloat(previousValue);
+            const b = parseFloat(currentInput);
+            
+            try {
+                switch (operator) {
+                    case '+': result = a + b; break;
+                    case '-': result = a - b; break;
+                    case '*': result = a * b; break;
+                    case '/':
+                        if (b === 0) throw new Error("Division by zero");
+                        result = a / b;
+                        break;
+                    default: return;
+                }
+                
+                // Add to history
+                addToHistory(`${a} ${getOperatorSymbol(operator)} ${b}`, result);
+                
+                // Round to avoid floating point precision issues
+                if (!Number.isInteger(result)) {
+                    result = parseFloat(result.toFixed(10));
+                    // Remove trailing zeros
+                    result = parseFloat(result);
+                }
+                
+                currentInput = result.toString();
+                previousValue = null;
+                operator = null;
+                calculationComplete = true;
+                
+                highlightOperator(null);
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+                
+                setTimeout(() => {
+                    currentInput = '0';
+                    updateDisplay();
+                }, 1500);
+            }
+        }
+
+        function scientificOperation(operation) {
+            if (currentInput === 'Error') return;
+            
+            const value = parseFloat(currentInput);
+            let result;
+            
+            try {
+                switch (operation) {
+                    case 'sin':
+                        result = angleMode === 'deg' ? Math.sin(value * Math.PI / 180) : Math.sin(value);
+                        break;
+                    case 'cos':
+                        result = angleMode === 'deg' ? Math.cos(value * Math.PI / 180) : Math.cos(value);
+                        break;
+                    case 'tan':
+                        result = angleMode === 'deg' ? Math.tan(value * Math.PI / 180) : Math.tan(value);
+                        break;
+                    case 'sqrt':
+                        if (value < 0) throw new Error("Cannot take square root of negative number");
+                        result = Math.sqrt(value);
+                        break;
+                    case 'log':
+                        if (value <= 0) throw new Error("Cannot take log of non-positive number");
+                        result = Math.log10(value);
+                        break;
+                    case 'ln':
+                        if (value <= 0) throw new Error("Cannot take natural log of non-positive number");
+                        result = Math.log(value);
+                        break;
+                    case 'exp':
+                        result = Math.exp(value);
+                        break;
+                    case 'pow':
+                        // Store current value and wait for second operand
+                        previousValue = currentInput;
+                        operator = 'pow';
+                        currentInput = '0';
+                        updateDisplay();
+                        return;
+                    case 'pi':
+                        result = Math.PI;
+                        break;
+                    case 'e':
+                        result = Math.E;
+                        break;
+                    case 'fact':
+                        if (value < 0 || !Number.isInteger(value)) throw new Error("Factorial only valid for non-negative integers");
+                        result = factorial(value);
+                        break;
+                    case 'inv':
+                        if (value === 0) throw new Error("Cannot divide by zero");
+                        result = 1 / value;
+                        break;
+                    case 'abs':
+                        result = Math.abs(value);
+                        break;
+                    case 'rad':
+                        angleMode = 'rad';
+                        currentInput = 'Angle mode: RAD';
+                        updateDisplay();
+                        setTimeout(() => {
+                            currentInput = value.toString();
+                            updateDisplay();
+                        }, 1000);
+                        return;
+                    case 'deg':
+                        angleMode = 'deg';
+                        currentInput = 'Angle mode: DEG';
+                        updateDisplay();
+                        setTimeout(() => {
+                            currentInput = value.toString();
+                            updateDisplay();
+                        }, 1000);
+                        return;
+                    default:
+                        return;
+                }
+                
+                // Add to history if it's a completed operation
+                addToHistory(`${operation}(${value})`, result);
+                
+                // Round to avoid floating point precision issues
+                if (!Number.isInteger(result)) {
+                    result = parseFloat(result.toFixed(10));
+                    // Remove trailing zeros
+                    result = parseFloat(result);
+                }
+                
+                currentInput = result.toString();
+                calculationComplete = true;
+                updateDisplay();
+            } catch (error) {
+                currentInput = 'Error';
+                updateDisplay();
+                
+                setTimeout(() => {
+                    currentInput = '0';
+                    updateDisplay();
+                }, 1500);
+            }
+        }
+
+        function factorial(n) {
+            if (n === 0 || n === 1) return 1;
+            
+            let result = 1;
+            for (let i = 2; i <= n; i++) {
+                result *= i;
+                // Prevent infinite loops for large numbers
+                if (!isFinite(result)) break;
+            }
+            return result;
+        }
+
+        function memoryOperation(operation) {
+            if (currentInput === 'Error') return;
+            
+            const value = parseFloat(currentInput);
+            
+            switch (operation) {
+                case 'MC': // Memory Clear
+                    memoryValue = null;
+                    memoryIndicator.classList.remove('active');
+                    break;
+                case 'MR': // Memory Recall
+                    if (memoryValue !== null) {
+                        currentInput = memoryValue.toString();
+                        updateDisplay();
+                    }
+                    break;
+                case 'M+': // Memory Add
+                    if (memoryValue === null) {
+                        memoryValue = value;
+                    } else {
+                        memoryValue += value;
+                    }
+                    memoryIndicator.classList.add('active');
+                    break;
+                case 'M-': // Memory Subtract
+                    if (memoryValue === null) {
+                        memoryValue = -value;
+                    } else {
+                        memoryValue -= value;
+                    }
+                    memoryIndicator.classList.add('active');
+                    break;
+                case 'MS': // Memory Store
+                    memoryValue = value;
+                    memoryIndicator.classList.add('active');
+                    break;
+            }
+            
+            // Briefly flash the indicator to show the operation worked
+            if (operation !== 'MC') {
+                memoryIndicator.style.opacity = '1';
+                setTimeout(() => {
+                    memoryIndicator.style.opacity = '0.8';
+                }, 200);
+            }
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle('dark-mode');
+            themeToggleBtn.textContent = document.body.classList.contains('dark-mode') ? '🌙' : '☀️';
+            saveState();
+        }
+
+        function toggleScientificPanel() {
+            scientificPanelVisible = !scientificPanelVisible;
+            scientificButtons.style.display = scientificPanelVisible ? 'grid' : 'none';
+            
+            // Update the mode button text
+            modeToggleBtn.textContent = scientificPanelVisible ? '🔢' : '🧮';
+            
+            // Update mode selection
+            if (scientificPanelVisible) {
+                document.querySelector('[data-mode="scientific"]').classList.add('active');
+                document.querySelector('[data-mode="standard"]').classList.remove('active');
+                currentMode = 'scientific';
+            } else {
+                document.querySelector('[data-mode="standard"]').classList.add('active');
+                document.querySelector('[data-mode="scientific"]').classList.remove('active');
+                currentMode = 'standard';
+            }
+            
+            saveState();
+        }
+
+        function toggleMemoryPanel() {
+            memoryPanelVisible = !memoryPanelVisible;
+            memoryButtons.style.display = memoryPanelVisible ? 'grid' : 'none';
+            
+            saveState();
+        }
+
+        function toggleHistoryPanel() {
+            historyPanel.style.display = historyPanel.style.display === 'none' ? 'flex' : 'none';
+            
+            saveState();
+        }
+
+        function addToHistory(expression, result) {
+            // Create history item
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.addEventListener('click', () => {
+                currentInput = result.toString();
+                updateDisplay();
+            });
+            
+            // Create and append expression element
+            const expressionElement = document.createElement('div');
+            expressionElement.className = 'history-expression';
+            expressionElement.textContent = expression;
+            historyItem.appendChild(expressionElement);
+            
+            // Create and append result element
+            const resultElement = document.createElement('div');
+            resultElement.className = 'history-result';
+            resultElement.textContent = `= ${result}`;
+            historyItem.appendChild(resultElement);
+            
+            // Remove empty history message if exists
+            const emptyHistory = historyList.querySelector('.empty-history');
+            if (emptyHistory) {
+                historyList.removeChild(emptyHistory);
+            }
+            
+            // Add to history list
+            historyList.insertBefore(historyItem, historyList.firstChild);
+            
+            // Store in history array
+            calculationHistory.push({ expression, result });
+            
+            // Limit history size
+            if (calculationHistory.length > 50) {
+                calculationHistory.pop();
+                
+                // Remove last child from history list
+                if (historyList.childElementCount > 50) {
+                    historyList.removeChild(historyList.lastChild);
+                }
+            }
+            
+            saveState();
+        }
+
+        function clearHistory() {
+            historyList.innerHTML = '<div class="empty-history">No calculations yet</div>';
+            calculationHistory = [];
+            
+            saveState();
+        }
+
+        // Save and load state
+        function saveState() {
+            const state = {
+                currentInput,
+                operator,
+                previousValue,
+                calculationComplete,
+                memoryValue,
+                calculationHistory,
+                scientificPanelVisible,
+                memoryPanelVisible,
+                angleMode,
+                currentMode,
+                darkMode: document.body.classList.contains('dark-mode'),
+                historyVisible: historyPanel.style.display !== 'none'
+            };
+            
+            localStorage.setItem('calculatorState', JSON.stringify(state));
+        }
+
+        function loadState() {
+            try {
+                const savedState = localStorage.getItem('calculatorState');
+                
+                if (savedState) {
+                    const state = JSON.parse(savedState);
+                    
+                    // Restore calculator state
+                    currentInput = state.currentInput || '0';
+                    operator = state.operator || null;
+                    previousValue = state.previousValue || null;
+                    calculationComplete = state.calculationComplete || false;
+                    memoryValue = state.memoryValue || null;
+                    calculationHistory = state.calculationHistory || [];
+                    scientificPanelVisible = state.scientificPanelVisible || false;
+                    memoryPanelVisible = state.memoryPanelVisible || false;
+                    angleMode = state.angleMode || 'deg';
+                    currentMode = state.currentMode || 'standard';
+                    
+                    // Restore theme
+                    if (state.darkMode) {
+                        document.body.classList.add('dark-mode');
+                        themeToggleBtn.textContent = '🌙';
+                    } else {
+                        document.body.classList.remove('dark-mode');
+                        themeToggleBtn.textContent = '☀️';
+                    }
+                    
+                    // Restore panel visibility
+                    scientificButtons.style.display = scientificPanelVisible ? 'grid' : 'none';
+                    memoryButtons.style.display = memoryPanelVisible ? 'grid' : 'none';
+                    historyPanel.style.display = state.historyVisible ? 'flex' : 'none';
+                    
+                    // Restore mode selection
+                    document.querySelector(`[data-mode="${currentMode}"]`).click();
+                    
+                    // Restore memory indicator
+                    if (memoryValue !== null) {
+                        memoryIndicator.classList.add('active');
+                    }
+                    
+                    // Restore history list
+                    if (calculationHistory.length > 0) {
+                        historyList.innerHTML = '';
+                        
+                        calculationHistory.forEach(item => {
+                            const historyItem = document.createElement('div');
+                            historyItem.className = 'history-item';
+                            historyItem.addEventListener('click', () => {
+                                currentInput = item.result.toString();
+                                updateDisplay();
+                            });
+                            
+                            const expressionElement = document.createElement('div');
+                            expressionElement.className = 'history-expression';
+                            expressionElement.textContent = item.expression;
+                            historyItem.appendChild(expressionElement);
+                            
+                            const resultElement = document.createElement('div');
+                            resultElement.className = 'history-result';
+                            resultElement.textContent = `= ${item.result}`;
+                            historyItem.appendChild(resultElement);
+                            
+                            historyList.appendChild(historyItem);
+                        });
+                    }
+                    
+                    // Restore display
+                    updateDisplay();
+                    
+                    // Restore operator highlighting
+                    if (operator) {
+                        highlightOperator(operator);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading calculator state:', error);
+                // Reset to defaults if there's an error
+                clearDisplay();
+                clearHistory();
+            }
+        }
+
+        // Initialize calculator
+        updateDisplay();
+
+        // Add event listeners for application startup
+        window.addEventListener('beforeunload', saveState);
+
+        // Attach functions to the global `window` object
+        window.append = append;
+        window.setOperation = setOperation;
+        window.calculate = calculate;
+        window.clearDisplay = clearDisplay;
+        window.backspace = backspace;
+        window.toggleScientificPanel = toggleScientificPanel;
+        window.toggleMemoryPanel = toggleMemoryPanel;
+        window.memoryOperation = memoryOperation;
+        window.scientificOperation = scientificOperation;
+        window.clearHistory = clearHistory;
+    </script>
+</body>
+</html>
