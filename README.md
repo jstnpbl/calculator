@@ -14,9 +14,6 @@ An advanced calculator application built using **HTML**, **CSS**, and **JavaScri
 - **Modes**:
   - Standard mode
   - Scientific mode
-  - Programmer mode (coming soon)
-  - Date calculation mode (coming soon)
-  - Unit converter mode (coming soon)
 - **Keyboard Shortcuts**: Perform operations quickly using your keyboard.
 - **Light/Dark Theme Toggle**: Switch between light and dark themes for better usability.
 
@@ -29,3 +26,34 @@ An advanced calculator application built using **HTML**, **CSS**, and **JavaScri
 1. Clone the repository:
    ```bash
    git clone https://github.com/jstnpbl/calculator.git
+   ```
+2. Open `index.html` in your web browser.
+3. Use the calculator by:
+   - Clicking buttons with your mouse
+   - Using keyboard shortcuts (shown on buttons)
+   - Toggle between standard and scientific modes
+   - Access memory functions and history panel
+   - Switch between light and dark themes
+
+## Keyboard Shortcuts
+- Numbers: `0-9`
+- Operations: `+`, `-`, `*`, `/`
+- Scientific Functions:
+  - `s`: sin
+  - `c`: cos
+  - `t`: tan
+  - `^`: power
+  - `r`: square root
+  - `p`: π
+  - `e`: e^x
+  - `!`: factorial
+- Memory Operations:
+  - `Ctrl+M`: Memory Store
+  - `Ctrl+R`: Memory Recall
+  - `Ctrl+P`: Memory Add
+  - `Ctrl+Q`: Memory Subtract
+  - `Ctrl+L`: Memory Clear
+- Other:
+  - `Enter`: Calculate
+  - `Esc`: Clear
+  - `Backspace`: Delete last digit
